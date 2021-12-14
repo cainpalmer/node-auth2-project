@@ -26,7 +26,6 @@ const restricted = (req, res, next) => {
 }
 
 const only = role_name => (req, res, next) => {
-  const roleName = req.decodedToken.roleName
     if(role_name === req.decodedToken.role_name){
       next()
     }else{
@@ -43,7 +42,7 @@ const checkUsernameExists = async (req, res, next) => {
     const [user] = await findBy({username: req.body.username})
     if(!user){
       next({
-        status: 422,
+        status: 401,
         message: 'Invalid credentials'
       })
     }else{
