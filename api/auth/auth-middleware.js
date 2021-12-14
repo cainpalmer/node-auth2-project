@@ -1,14 +1,31 @@
 const e = require("express");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 const {findBy} = require('../users/users-model');
+const jwt = require('jsonwebtoken');
 
 
 const restricted = (req, res, next) => {
-  next()
+  const token = req.headers.authorization
+  if (!token) {
+    return next({status: 401, message: 'Token required'})
+  }
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      next({status: 401, message: 'Token required'})
+    } else {
+      req.decodedToken = decodedToken
+      next()
+    }
+  })
 }
 
 const only = role_name => (req, res, next) => {
-  next()
+  const {roleName} = req.decodedToken.role_name
+  if (role_name === req.decodedToken.role_name) {
+    next()
+  } else {
+    next({status: 403, message: 'This is not for you'})
+  }
 }
 
 
